@@ -9,10 +9,12 @@ namespace TravelAgencyAPI.Services
     {
         private readonly TravelAgencyDbContext _dbContext;
         private readonly IMapper _mapper;
-        public TourService(TravelAgencyDbContext dbContext, IMapper mapper)
+        private readonly ILogger _logger;
+        public TourService(TravelAgencyDbContext dbContext, IMapper mapper, ILogger<TourService> logger)
         {
             _dbContext = dbContext;
             _mapper = mapper;
+            _logger = logger;
         }
 
         public TourDto GetById(int id)

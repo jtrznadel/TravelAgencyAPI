@@ -41,8 +41,23 @@ namespace TravelAgencyAPI
                    EndDate = DateTime.Parse("Apr 18, 2023"),
                    Price = 1120.00,
                    TourLimit = 15
-               }
-                );
+               });
+            _modelBuilder.Entity<Role>().HasData(
+                new Role
+                {
+                    Id = 1,
+                    Name = "User"
+                },
+                new Role
+                {
+                    Id = 2,
+                    Name = "Manager"
+                },
+                new Role
+                {
+                    Id = 3,
+                    Name = "Admin"
+                });
         }   
     }
 }
