@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TravelAgencyAPI.Entities;
 using TravelAgencyAPI.Interfaces;
@@ -8,6 +9,7 @@ namespace TravelAgencyAPI.Controllers
 {
     [Route("tour")]
     [ApiController]
+    [Authorize]
     public class TourController : ControllerBase
     {
         private readonly ITourService _tourService;
@@ -15,7 +17,8 @@ namespace TravelAgencyAPI.Controllers
         {
             _tourService = tourService;
         }
-
+        [HttpGet]
+        [AllowAnonymous]
         public ActionResult<IEnumerable<Tour>> GetAll()
         {
             var toursDtos = _tourService.GetAll();
@@ -23,6 +26,7 @@ namespace TravelAgencyAPI.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(Roles = "Manager")]
         public ActionResult Get([FromRoute]int id) 
         { 
            var tourDto = _tourService.GetById(id);
@@ -30,6 +34,7 @@ namespace TravelAgencyAPI.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Manager")]
         public ActionResult CreateTour([FromBody]TourDto dto)
         {
             var id =  _tourService.CreateTour(dto);

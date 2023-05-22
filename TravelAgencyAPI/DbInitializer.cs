@@ -1,11 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using TravelAgencyAPI.Entities;
 
 namespace TravelAgencyAPI
 {
     public class DbInitializer
     {
-        private readonly TravelAgencyDbContext _dbContext;
+        public PasswordHasher<User> _passwordHasher;
         private readonly ModelBuilder _modelBuilder;
         public DbInitializer(ModelBuilder modelBuilder)
         {
@@ -57,7 +58,7 @@ namespace TravelAgencyAPI
                 {
                     Id = 3,
                     Name = "Admin"
-                });
+                });         
         }   
     }
 }
