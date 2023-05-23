@@ -6,5 +6,7 @@ namespace TravelAgencyAPI.Interfaces
     {
         public void RegisterUser(RegisterUserDto dto);
         public string GenerateJwt(LoginDto dto);
+        public bool DeleteUser(int userId);
+        public bool UpdateUserRole(int userId, int roleId);
     }
 }

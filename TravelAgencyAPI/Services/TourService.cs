@@ -1,5 +1,10 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
+using System.Linq.Expressions;
+using System.Security.Claims;
+using TravelAgencyAPI.Authorization;
 using TravelAgencyAPI.Entities;
+using TravelAgencyAPI.Exceptions;
 using TravelAgencyAPI.Interfaces;
 using TravelAgencyAPI.Models;
 
@@ -10,11 +15,16 @@ namespace TravelAgencyAPI.Services
         private readonly TravelAgencyDbContext _dbContext;
         private readonly IMapper _mapper;
         private readonly ILogger _logger;
-        public TourService(TravelAgencyDbContext dbContext, IMapper mapper, ILogger<TourService> logger)
+        private readonly IAuthorizationService _authorizationService;
+        private readonly IUserContextService _userContextService;
+        public TourService(TravelAgencyDbContext dbContext, IMapper mapper, ILogger<TourService> logger, 
+            IAuthorizationService authorizationService, IUserContextService userContextService)
         {
             _dbContext = dbContext;
             _mapper = mapper;
             _logger = logger;
+            _authorizationService = authorizationService;
+            _userContextService = userContextService;
         }
 
         public TourDto GetById(int id)
@@ -27,13 +37,41 @@ namespace TravelAgencyAPI.Services
             return result;
         }
 
-        public IEnumerable<TourDto> GetAll()
+        public PagedResult<TourDto> GetAll(TourQuery query)
         {
-            var tours = _dbContext
+            var baseQuery = _dbContext
                 .Tours
+                .Where(t => query.SearchPhrase == null || (t.Country.ToLower().Contains(query.SearchPhrase.ToLower())
+                                                    || t.DestinationPoint.ToLower().Contains(query.SearchPhrase.ToLower())));
+
+            if (!string.IsNullOrEmpty(query.SortBy))
+            {
+                var columnsSelector = new Dictionary<string, Expression<Func<Tour, object>>>
+                {
+                    {nameof(Tour.Name), t => t.Name },
+                    {nameof(Tour.Country), t => t.Country },
+                    {nameof(Tour.StartDate), t => t.StartDate }
+                };
+
+                var selectedColumn = columnsSelector[query.SortBy];
+
+                baseQuery = query.SortDirection == SortDirection.ASC 
+                    ? baseQuery.OrderBy(selectedColumn)
+                    : baseQuery.OrderByDescending(selectedColumn);
+            }
+
+            var tours = baseQuery
+                .Skip(query.PageSize * (query.PageNumber -1))
+                .Take(query.PageSize)
                 .ToList();
+
             var toursDtos = _mapper.Map<List<TourDto>>(tours);
-            return toursDtos;
+
+            var totalItemsCount = baseQuery.Count();
+
+            var result = new PagedResult<TourDto>(toursDtos, totalItemsCount, query.PageSize, query.PageNumber);
+
+            return result;
         }
 
         public int CreateTour(TourDto dto)
@@ -45,11 +83,12 @@ namespace TravelAgencyAPI.Services
                 Description = dto.Description,
                 Country = dto.Country,
                 DestinationPoint = dto.DestinationPoint,
-                StartDate = DateTime.ParseExact(dto.StartDate, "yyyy-MM-dd'T'HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture),
-                EndDate = DateTime.ParseExact(dto.EndDate, "yyyy-MM-dd'T'HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture),
+                StartDate = dto.StartDate,
+                EndDate = dto.EndDate,
                 Price = dto.Price,
                 TourLimit = dto.TourLimit
             };
+            tour.CreatedById = _userContextService.GetUserId;
             _dbContext.Tours.Add(tour);
             _dbContext.SaveChanges();
             return tour.Id;
@@ -60,18 +99,36 @@ namespace TravelAgencyAPI.Services
             var tour = _dbContext
                 .Tours
                 .FirstOrDefault(tour => tour.Id == id);
+
             if (tour is null) return false;
+
+            var authorizationResult = _authorizationService.AuthorizeAsync(_userContextService.User, tour, new ResourceOperationRequirement(ResourceOperation.Delete)).Result;
+
+            if (!authorizationResult.Succeeded)
+            {
+                throw new ForbidException();
+            }
+
             _dbContext.Tours.Remove(tour);
             _dbContext.SaveChanges();
             return true;
         }
 
         public bool Update(UpdateTourDto dto, int id)
-        {
+        {           
             var tour = _dbContext
                 .Tours
                 .FirstOrDefault(tour => tour.Id == id);
+
             if (tour is null) return false;
+
+            var authorizationResult = _authorizationService.AuthorizeAsync(_userContextService.User, tour, new ResourceOperationRequirement(ResourceOperation.Update)).Result;
+
+            if (!authorizationResult.Succeeded)
+            {
+                throw new ForbidException();
+            }
+
             tour.Name = dto.Name;
             tour.Description = dto.Description;
             tour.Price = dto.Price;

@@ -11,5 +11,7 @@
         public DateTime EndDate { get; set; }
         public double Price { get; set; }
         public int TourLimit { get; set; }
+        public int? CreatedById { get; set; }
+        public virtual User CreatedBy { get; set; }
     }
 }

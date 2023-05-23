@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TravelAgencyAPI.Interfaces;
 using TravelAgencyAPI.Models;
+using TravelAgencyAPI.Services;
 
 namespace TravelAgencyAPI.Controllers
 {
@@ -27,6 +29,21 @@ namespace TravelAgencyAPI.Controllers
         {
             string token = _accountService.GenerateJwt(dto);
             return Ok(token);
+        }
+
+        [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
+        public ActionResult Delete([FromRoute]int id)
+        {
+            var isDeleted = _accountService.DeleteUser(id);
+            if (isDeleted) return NoContent();
+            return NotFound();
+        }
+        [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
+        public ActionResult UpdateUserRole([FromRoute]int id, [FromQuery]int roleId)
+        {
+            return NotFound();
         }
     }
 

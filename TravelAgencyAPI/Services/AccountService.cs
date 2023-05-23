@@ -68,5 +68,29 @@ namespace TravelAgencyAPI.Services
             _dbContext.Users.Add(newUser);
             _dbContext.SaveChanges();   
         }
+
+        public bool DeleteUser(int userId)
+        {
+            var userToDelete = _dbContext
+                .Users
+                .FirstOrDefault(u => u.Id == userId);
+
+            if (userToDelete is null) return false;
+
+            _dbContext.Users.Remove(userToDelete);
+            _dbContext.SaveChanges();
+            return true;
+        }
+
+        public bool UpdateUserRole(int userId, int roleId)
+        {
+            var userToUpdate = _dbContext
+                .Users
+                .FirstOrDefault(u => u.Id == userId);
+            if (userToUpdate is null) return false;
+            userToUpdate.RoleId = roleId;
+            _dbContext.SaveChanges();
+            return true;
+        }
     }
 }

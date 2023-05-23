@@ -15,8 +15,8 @@ namespace TravelAgencyAPI.Models
         [Required]
         [MaxLength(50)]
         public string DestinationPoint { get; set; }
-        public string StartDate { get; set; }
-        public string EndDate { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
         [Required]
         public double Price { get; set; }
         [Required]

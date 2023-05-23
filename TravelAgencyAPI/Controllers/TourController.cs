@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using TravelAgencyAPI.Entities;
 using TravelAgencyAPI.Interfaces;
 using TravelAgencyAPI.Models;
@@ -19,14 +20,13 @@ namespace TravelAgencyAPI.Controllers
         }
         [HttpGet]
         [AllowAnonymous]
-        public ActionResult<IEnumerable<Tour>> GetAll()
+        public ActionResult<IEnumerable<Tour>> GetAll([FromQuery]TourQuery query)
         {
-            var toursDtos = _tourService.GetAll();
+            var toursDtos = _tourService.GetAll(query);
             return Ok(toursDtos);
         }
 
-        [HttpGet("{id}")]
-        [Authorize(Roles = "Manager")]
+        [HttpGet("{id}")] 
         public ActionResult Get([FromRoute]int id) 
         { 
            var tourDto = _tourService.GetById(id);
@@ -37,11 +37,13 @@ namespace TravelAgencyAPI.Controllers
         [Authorize(Roles = "Manager")]
         public ActionResult CreateTour([FromBody]TourDto dto)
         {
+            var userId = int.Parse(User.FindFirst(c => c.Type == ClaimTypes.NameIdentifier).Value);
             var id =  _tourService.CreateTour(dto);
             return Created($"/tour/{id}", null);
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Manager, Admin")]
         public ActionResult Delete([FromRoute]int id)
         {
             var isDeleted = _tourService.DeleteById(id);
@@ -50,6 +52,7 @@ namespace TravelAgencyAPI.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Manager, Admin")]
         public ActionResult Update([FromBody]UpdateTourDto dto, [FromRoute]int id) 
         {
             var isUpdated = _tourService.Update(dto, id);
