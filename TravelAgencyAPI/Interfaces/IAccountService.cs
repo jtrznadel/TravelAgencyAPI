@@ -1,4 +1,5 @@
-﻿using TravelAgencyAPI.Models;
+﻿using TravelAgencyAPI.Entities;
+using TravelAgencyAPI.Models;
 
 namespace TravelAgencyAPI.Interfaces
 {
@@ -8,5 +9,6 @@ namespace TravelAgencyAPI.Interfaces
         public string GenerateJwt(LoginDto dto);
         public bool DeleteUser(int userId);
         public bool UpdateUserRole(int userId, int roleId);
+        public IEnumerable<UserDto> GetAll();
     }
 }

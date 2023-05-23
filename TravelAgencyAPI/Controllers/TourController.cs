@@ -18,6 +18,7 @@ namespace TravelAgencyAPI.Controllers
         {
             _tourService = tourService;
         }
+
         [HttpGet]
         [AllowAnonymous]
         public ActionResult<IEnumerable<Tour>> GetAll([FromQuery]TourQuery query)
@@ -37,7 +38,6 @@ namespace TravelAgencyAPI.Controllers
         [Authorize(Roles = "Manager")]
         public ActionResult CreateTour([FromBody]TourDto dto)
         {
-            var userId = int.Parse(User.FindFirst(c => c.Type == ClaimTypes.NameIdentifier).Value);
             var id =  _tourService.CreateTour(dto);
             return Created($"/tour/{id}", null);
         }

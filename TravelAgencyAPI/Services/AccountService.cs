@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -18,12 +19,14 @@ namespace TravelAgencyAPI.Services
         private readonly TravelAgencyDbContext _dbContext;
         private readonly IPasswordHasher<User> _passwordHasher;
         private readonly AuthenticationSettings _authenticationSettings;
+        private readonly IMapper _mapper;
 
-        public AccountService(TravelAgencyDbContext dbContext, IPasswordHasher<User> passwordHasher, AuthenticationSettings authenticationSettings) 
+        public AccountService(TravelAgencyDbContext dbContext, IPasswordHasher<User> passwordHasher, AuthenticationSettings authenticationSettings, IMapper mapper) 
         {
             _dbContext = dbContext;
             _passwordHasher = passwordHasher;
             _authenticationSettings = authenticationSettings;
+            _mapper = mapper;
         }
 
         public string GenerateJwt(LoginDto dto)
@@ -91,6 +94,15 @@ namespace TravelAgencyAPI.Services
             userToUpdate.RoleId = roleId;
             _dbContext.SaveChanges();
             return true;
+        }
+
+        public IEnumerable<UserDto> GetAll()
+        {
+            var users = _dbContext
+                .Users
+                .ToList();
+            var usersDtos = _mapper.Map<List<UserDto>>(users);
+            return usersDtos;
         }
     }
 }

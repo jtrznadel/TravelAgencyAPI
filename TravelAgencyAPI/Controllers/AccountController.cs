@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TravelAgencyAPI.Entities;
 using TravelAgencyAPI.Interfaces;
 using TravelAgencyAPI.Models;
 using TravelAgencyAPI.Services;
@@ -15,6 +16,14 @@ namespace TravelAgencyAPI.Controllers
         public AccountController(IAccountService accountService)
         {
             _accountService = accountService;
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "Admin")]
+        public ActionResult<IEnumerable<User>> GetAll()
+        {
+            var userDtos = _accountService.GetAll();
+            return Ok(userDtos);
         }
 
         [HttpPost("register")]
@@ -43,8 +52,12 @@ namespace TravelAgencyAPI.Controllers
         [Authorize(Roles = "Admin")]
         public ActionResult UpdateUserRole([FromRoute]int id, [FromQuery]int roleId)
         {
-            return NotFound();
+            var isUpdated = _accountService.UpdateUserRole(id, roleId);
+            if (!isUpdated) return NotFound();
+            return Ok();
         }
+
+
     }
 
 }

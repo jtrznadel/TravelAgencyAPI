@@ -10,7 +10,8 @@ namespace TravelAgencyAPI.Mapper
         {
             CreateMap<Tour, TourDto>();
             CreateMap<TourDto, Tour>();
-
+            CreateMap<User, UserDto>();
+            CreateMap<MakeReservationDto, Reservation>();
         }
     }
 }

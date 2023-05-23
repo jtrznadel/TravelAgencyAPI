@@ -44,14 +44,20 @@ builder.Services.AddControllers().AddFluentValidation();
 builder.Services.AddSingleton(authenticationSettings);
 builder.Services.AddDbContext<TravelAgencyDbContext>();
 builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
+
 builder.Services.AddScoped<ITourService, TourService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddScoped<IUserContextService, UserContextService>();
+builder.Services.AddScoped<IReservationService, ReservationService>();
+
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();  
 builder.Services.AddScoped<IValidator<RegisterUserDto>, RegisterUserValidator>();
 builder.Services.AddScoped<IValidator<TourQuery>, TourQueryValidator>();
 builder.Services.AddScoped<ErrorHandlingMiddleware>();
+
 builder.Services.AddScoped<IAuthorizationHandler, ResourceOperationRequirementHandler>();
-builder.Services.AddScoped<IUserContextService, UserContextService>();
+builder.Services.AddScoped<IAuthorizationHandler, ReservationRequirementHandler>();
+
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddCors(options =>
 {
