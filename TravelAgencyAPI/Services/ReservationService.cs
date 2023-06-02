@@ -34,17 +34,28 @@ namespace TravelAgencyAPI.Services
             reservation.UserId = (int)_userContextService.GetUserId;
             reservation.ReservatedAt = DateTime.UtcNow;
             reservation.Status = "Ongoing";
-            _dbContext.Add(reservation);
-            _dbContext.SaveChanges();
-
-            var discount = _accountService.IsDiscountAllowed(reservation.UserId);
+            var tourTemp = _dbContext.Tours.Where(t => t.Id == dto.TourId).FirstOrDefault();
+            var placesTaken = _dbContext.Reservations.Where(r => r.TourId == dto.TourId).Count();
+            bool result = tourTemp.TourLimit > placesTaken ? true : false;
             var user = _dbContext.Users.Where(u => u.Id == reservation.UserId).FirstOrDefault();
             var tour = _dbContext.Tours.Where(t => t.Id == reservation.TourId).FirstOrDefault();
             var tourDto = _mapper.Map<TourDto>(tour);
-            var email = _emailService.ReservationBookedMessage(user.Email, tourDto, reservation.Id, discount);
-            await _emailService.SendEmailAsync(email.Email, email.Subject, email.Message);
+            if (!result)
+            {
+                var email = _emailService.ReservationFailureMessage(user.Email, tourDto);
+                await _emailService.SendEmailAsync(email.Email, email.Subject, email.Message);
+                return reservation;
+            }
+            else
+            {
+                _dbContext.Add(reservation);
+                _dbContext.SaveChanges();
 
-            return reservation;
+                var discount = _accountService.IsDiscountAllowed();
+                var email = _emailService.ReservationBookedMessage(user.Email, tourDto, reservation.Id, discount);
+                await _emailService.SendEmailAsync(email.Email, email.Subject, email.Message);
+                return reservation;
+            }           
         }
 
         public async Task<Reservation> Cancel(int reservationId, ReasonModel reason)
@@ -81,6 +92,11 @@ namespace TravelAgencyAPI.Services
                 .ToList();
             var reservationDtos = _mapper.Map<List<ReservationDto>>(reservations);
             return reservationDtos;
+        }
+
+        public int GetTourReservations(int tourId)
+        {
+            return _dbContext.Reservations.Where(r => r.TourId == tourId).Count();
         }
     }
 }

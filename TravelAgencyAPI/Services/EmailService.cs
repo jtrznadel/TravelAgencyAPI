@@ -85,5 +85,28 @@ namespace TravelAgencyAPI.Services
                     The Travel Agency Team";
             return email;
         }
+
+        public EmailModel ReservationFailureMessage(string userEmail, TourDto tour)
+        {
+            var email = new EmailModel();
+            email.Email = userEmail;
+            email.Subject = "Tour Fully Booked";
+            email.Message = $@"Dear {userEmail},
+
+                    We regret to inform you that the tour you have requested is fully booked. Unfortunately, all available spots have been filled.
+
+                    Reservation Details:
+                    - Tour: {tour.Name}
+                    - Start Date: {tour.StartDate}
+                    - End Date: {tour.EndDate}
+
+                    We apologize for any inconvenience caused. If you have any questions or would like assistance in choosing an alternative tour, please don't hesitate to contact our customer service office. We are here to help you find another exciting adventure.
+
+                    Thank you for considering our services, and we hope to have the opportunity to serve you in the future.
+
+                    Best regards,
+                    The Travel Agency Team";
+            return email;
+        }
     }
 }

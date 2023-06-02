@@ -10,6 +10,6 @@ namespace TravelAgencyAPI.Interfaces
         public bool DeleteUser(int userId);
         public bool UpdateUserRole(int userId, int roleId);
         public IEnumerable<UserDto> GetAll();
-        public bool IsDiscountAllowed(int userId);
+        public bool IsDiscountAllowed();
     }
 }

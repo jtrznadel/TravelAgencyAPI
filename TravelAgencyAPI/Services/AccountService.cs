@@ -20,13 +20,15 @@ namespace TravelAgencyAPI.Services
         private readonly IPasswordHasher<User> _passwordHasher;
         private readonly AuthenticationSettings _authenticationSettings;
         private readonly IMapper _mapper;
+        private readonly IUserContextService _userContextService;
 
-        public AccountService(TravelAgencyDbContext dbContext, IPasswordHasher<User> passwordHasher, AuthenticationSettings authenticationSettings, IMapper mapper)
+        public AccountService(TravelAgencyDbContext dbContext, IPasswordHasher<User> passwordHasher, AuthenticationSettings authenticationSettings, IMapper mapper, IUserContextService userContextService)
         {
             _dbContext = dbContext;
             _passwordHasher = passwordHasher;
             _authenticationSettings = authenticationSettings;
             _mapper = mapper;
+            _userContextService = userContextService;
         }
 
         public string GenerateJwt(LoginDto dto)
@@ -105,8 +107,9 @@ namespace TravelAgencyAPI.Services
             return usersDtos;
         }
 
-        public bool IsDiscountAllowed(int userId)
+        public bool IsDiscountAllowed()
         {
+            var userId = _userContextService.GetUserId;
             var date6MonthsBack = DateTime.Now.AddMonths(-6);
             var userRecentReservations = _dbContext.Reservations.Where(r => r.UserId ==  userId).ToList();
             var counter = userRecentReservations.Where(r => r.ReservatedAt > date6MonthsBack && r.Status == "Ongoing").Count();

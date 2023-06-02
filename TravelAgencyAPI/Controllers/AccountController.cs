@@ -26,6 +26,13 @@ namespace TravelAgencyAPI.Controllers
             return Ok(userDtos);
         }
 
+        [HttpGet("discount")]
+        public ActionResult GetDiscount()
+        {
+            var result = _accountService.IsDiscountAllowed();
+            return Ok(result);
+        }
+
         [HttpPost("register")]
         public ActionResult RegisterUser([FromBody]RegisterUserDto dto)
         {
