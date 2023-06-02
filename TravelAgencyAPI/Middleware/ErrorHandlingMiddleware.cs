@@ -25,6 +25,7 @@ namespace TravelAgencyAPI.Middleware
             catch (BadRequestException badRequestException)
             {
                 context.Response.StatusCode = 400;
+                _logger.LogError(badRequestException.Message);
                 await context.Response.WriteAsync(badRequestException.Message);
             }
             catch (Exception e)

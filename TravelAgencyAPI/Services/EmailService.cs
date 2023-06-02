@@ -25,9 +25,15 @@ namespace TravelAgencyAPI.Services
                 ));
         }
 
-        public EmailModel ReservationBookedMessage(string userEmail, TourDto tour, int reservationId)
+        public EmailModel ReservationBookedMessage(string userEmail, TourDto tour, int reservationId, bool discount)
         {
             var email = new EmailModel();
+            var tourPrice = tour.Price;
+            var addMessage = " ";
+            if (discount) {
+                tourPrice = tourPrice * 0.9;
+                addMessage = "We are delighted to have you as our valued customer, and as a token of our appreciation, we are pleased to offer you a special discount of 10% on the tour price.";
+            }
             email.Email = userEmail;
             email.Subject = "Reservation Confirmation for Your Tour";
             email.Message = $@"Dear {userEmail},
@@ -41,7 +47,8 @@ namespace TravelAgencyAPI.Services
                     - End Date: {tour.EndDate}
 
                     Additional Information:
-                    - Price: {tour.Price}
+                    {addMessage}
+                    - Price: {tourPrice}
 
                     If you have any questions or require further assistance, please don't hesitate to contact our customer service office. We are available to help you.
 

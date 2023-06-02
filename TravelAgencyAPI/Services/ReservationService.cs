@@ -18,14 +18,15 @@ namespace TravelAgencyAPI.Services
         private readonly IUserContextService _userContextService;
         private readonly IAuthorizationService _authorizationService;
         private readonly IEmailService _emailService;
-        public ReservationService(TravelAgencyDbContext dbContext, IMapper mapper, IUserContextService userContextService, IAuthorizationService authorizationService, IEmailService emailService)
+        private readonly IAccountService _accountService;
+        public ReservationService(TravelAgencyDbContext dbContext, IMapper mapper, IUserContextService userContextService, IAuthorizationService authorizationService, IEmailService emailService, IAccountService accountService)
         {
             _dbContext = dbContext;
             _mapper = mapper;
             _userContextService = userContextService;
             _authorizationService = authorizationService;
             _emailService = emailService;
-
+            _accountService = accountService;
         }
         public async Task<Reservation> Create(MakeReservationDto dto)
         {
@@ -36,10 +37,11 @@ namespace TravelAgencyAPI.Services
             _dbContext.Add(reservation);
             _dbContext.SaveChanges();
 
+            var discount = _accountService.IsDiscountAllowed(reservation.UserId);
             var user = _dbContext.Users.Where(u => u.Id == reservation.UserId).FirstOrDefault();
             var tour = _dbContext.Tours.Where(t => t.Id == reservation.TourId).FirstOrDefault();
             var tourDto = _mapper.Map<TourDto>(tour);
-            var email = _emailService.ReservationBookedMessage(user.Email, tourDto, reservation.Id);
+            var email = _emailService.ReservationBookedMessage(user.Email, tourDto, reservation.Id, discount);
             await _emailService.SendEmailAsync(email.Email, email.Subject, email.Message);
 
             return reservation;

@@ -21,7 +21,7 @@ namespace TravelAgencyAPI.Services
         private readonly AuthenticationSettings _authenticationSettings;
         private readonly IMapper _mapper;
 
-        public AccountService(TravelAgencyDbContext dbContext, IPasswordHasher<User> passwordHasher, AuthenticationSettings authenticationSettings, IMapper mapper) 
+        public AccountService(TravelAgencyDbContext dbContext, IPasswordHasher<User> passwordHasher, AuthenticationSettings authenticationSettings, IMapper mapper)
         {
             _dbContext = dbContext;
             _passwordHasher = passwordHasher;
@@ -103,6 +103,15 @@ namespace TravelAgencyAPI.Services
                 .ToList();
             var usersDtos = _mapper.Map<List<UserDto>>(users);
             return usersDtos;
+        }
+
+        public bool IsDiscountAllowed(int userId)
+        {
+            var date6MonthsBack = DateTime.Now.AddMonths(-6);
+            var userRecentReservations = _dbContext.Reservations.Where(r => r.UserId ==  userId).ToList();
+            var counter = userRecentReservations.Where(r => r.ReservatedAt > date6MonthsBack && r.Status == "Ongoing").Count();
+            if (counter > 3) return true;
+            return false;
         }
     }
 }

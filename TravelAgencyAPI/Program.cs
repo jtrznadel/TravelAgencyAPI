@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using NLog.Web;
 using System;
 using System.Reflection;
 using System.Text;
@@ -45,7 +46,11 @@ builder.Services.AddAuthentication(option =>
     };
 });
 
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
 builder.Services.AddControllers().AddFluentValidation();
+
 builder.Services.AddSingleton(authenticationSettings);
 
 builder.Services.AddDbContext<TravelAgencyDbContext>(options => options.UseSqlServer(config.GetConnectionString("AzureConnectionString")));
@@ -71,6 +76,8 @@ builder.Services.AddCors(policyBuilder =>
     policyBuilder.AddDefaultPolicy(policy =>
         policy.WithOrigins("*").AllowAnyHeader().AllowAnyMethod())
 );
+
+builder.Host.UseNLog();
 var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
@@ -79,6 +86,12 @@ using (var scope = app.Services.CreateScope())
 
     // Here is the migration executed
     dbContext.Database.Migrate();
+}
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
 // Configure the HTTP request pipeline.
