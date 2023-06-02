@@ -27,11 +27,18 @@ namespace TravelAgencyAPI.Controllers
 
         [HttpPut("{id}")]
         [Authorize(Roles = "User")]
-        public ActionResult Cancel([FromRoute]int id)
+        public ActionResult Cancel([FromRoute]int id, [FromBody]ReasonModel reason)
         {
-            var isCanceled = _reservationService.Cancel(id);
-            if (!isCanceled) return NotFound();
+            var isCanceled = _reservationService.Cancel(id, reason);
             return Ok();
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "User")]
+        public ActionResult GetUserReservation()
+        {
+            var reservationDtos = _reservationService.GetAll();
+            return Ok(reservationDtos);
         }
     }
 }

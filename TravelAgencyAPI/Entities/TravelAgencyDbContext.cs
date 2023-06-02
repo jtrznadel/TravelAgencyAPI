@@ -4,9 +4,7 @@ namespace TravelAgencyAPI.Entities
 {
     public class TravelAgencyDbContext : DbContext
     {
-        private string _connectionString =
-            "Server=(localdb)\\mssqllocaldb;Database=TravelAgencyDb;Trusted_Connection=True;";
-        public TravelAgencyDbContext(DbContextOptions options) : base(options)
+        public TravelAgencyDbContext(DbContextOptions<TravelAgencyDbContext> options) : base(options)
         {
             
         }
@@ -21,12 +19,12 @@ namespace TravelAgencyAPI.Entities
                 .IsRequired();
             modelBuilder.Entity<Role>()
                .Property(t => t.Name)
-               .IsRequired();
+               .IsRequired();         
             new DbInitializer(modelBuilder).Seed();
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(_connectionString);
+           
         }
     }
 }

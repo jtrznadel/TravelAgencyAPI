@@ -15,6 +15,7 @@ namespace TravelAgencyAPI
 
        public void Seed()
         {
+            
             _modelBuilder.Entity<Tour>().HasData(
                 new Tour()
                 {

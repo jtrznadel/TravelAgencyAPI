@@ -1,10 +1,12 @@
-﻿using TravelAgencyAPI.Models;
+﻿using TravelAgencyAPI.Entities;
+using TravelAgencyAPI.Models;
 
 namespace TravelAgencyAPI.Interfaces
 {
     public interface IReservationService
     {
-        public int Create(MakeReservationDto dto);
-        public bool Cancel(int  reservationId);
+        public Task<Reservation> Create(MakeReservationDto dto);
+        public Task<Reservation> Cancel(int  reservationId, ReasonModel reason);
+        public IEnumerable<ReservationDto> GetAll();
     }
 }
