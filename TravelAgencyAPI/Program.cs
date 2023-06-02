@@ -66,6 +66,7 @@ builder.Services.AddTransient<IEmailService, EmailService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();  
 builder.Services.AddScoped<IValidator<RegisterUserDto>, RegisterUserValidator>();
 builder.Services.AddScoped<IValidator<TourQuery>, TourQueryValidator>();
+builder.Services.AddScoped<IValidator<TourDto>, TourDtoValidator>();
 builder.Services.AddScoped<ErrorHandlingMiddleware>();
 
 builder.Services.AddScoped<IAuthorizationHandler, ResourceOperationRequirementHandler>();

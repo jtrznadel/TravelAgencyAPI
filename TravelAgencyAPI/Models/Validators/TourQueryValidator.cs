@@ -5,7 +5,7 @@ namespace TravelAgencyAPI.Models.Validators
 {
     public class TourQueryValidator : AbstractValidator<TourQuery>
     {
-        private int[] allowedPageSizes = { 5, 10, 15 };
+        private int[] allowedPageSizes = { 5, 10, 15, 50 };
 
         private string[] allowedSortByColumnNames = { nameof(Tour.Name), nameof(Tour.Country), nameof(Tour.StartDate) };
         public TourQueryValidator()

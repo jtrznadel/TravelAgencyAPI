@@ -74,6 +74,44 @@ namespace TravelAgencyAPI.Services
             return result;
         }
 
+        public PagedResult<TourDto> GetAllByOwner(TourQuery query)
+        {
+            var userId = _userContextService.GetUserId;
+            var baseQueryTemp = _dbContext.Tours.Where(t => t.CreatedById == userId);
+            var baseQuery = baseQueryTemp
+                .Where(t => query.SearchPhrase == null || (t.Country.ToLower().Contains(query.SearchPhrase.ToLower())
+                                                    || t.DestinationPoint.ToLower().Contains(query.SearchPhrase.ToLower())));
+
+            if (!string.IsNullOrEmpty(query.SortBy))
+            {
+                var columnsSelector = new Dictionary<string, Expression<Func<Tour, object>>>
+                {
+                    {nameof(Tour.Name), t => t.Name },
+                    {nameof(Tour.Country), t => t.Country },
+                    {nameof(Tour.StartDate), t => t.StartDate }
+                };
+
+                var selectedColumn = columnsSelector[query.SortBy];
+
+                baseQuery = query.SortDirection == SortDirection.ASC
+                    ? baseQuery.OrderBy(selectedColumn)
+                    : baseQuery.OrderByDescending(selectedColumn);
+            }
+
+            var tours = baseQuery
+                .Skip(query.PageSize * (query.PageNumber - 1))
+                .Take(query.PageSize)
+                .ToList();
+
+            var toursDtos = _mapper.Map<List<TourDto>>(tours);
+
+            var totalItemsCount = baseQuery.Count();
+
+            var result = new PagedResult<TourDto>(toursDtos, totalItemsCount, query.PageSize, query.PageNumber);
+
+            return result;
+        }
+
         public int CreateTour(TourDto dto)
         {
             var tour = new Tour()
@@ -99,15 +137,19 @@ namespace TravelAgencyAPI.Services
             var tour = _dbContext
                 .Tours
                 .FirstOrDefault(tour => tour.Id == id);
+            var role = _userContextService.GetUserRole;
 
             if (tour is null) return false;
 
             var authorizationResult = _authorizationService.AuthorizeAsync(_userContextService.User, tour, new ResourceOperationRequirement(ResourceOperation.Delete)).Result;
-
-            if (!authorizationResult.Succeeded)
+            if(role != "Admin")
             {
-                throw new ForbidException();
+                if (!authorizationResult.Succeeded)
+                {
+                    throw new ForbidException();
+                }
             }
+          
 
             _dbContext.Tours.Remove(tour);
             _dbContext.SaveChanges();
@@ -119,14 +161,19 @@ namespace TravelAgencyAPI.Services
             var tour = _dbContext
                 .Tours
                 .FirstOrDefault(tour => tour.Id == id);
+            var role = _userContextService.GetUserRole;
+
 
             if (tour is null) return false;
 
             var authorizationResult = _authorizationService.AuthorizeAsync(_userContextService.User, tour, new ResourceOperationRequirement(ResourceOperation.Update)).Result;
 
-            if (!authorizationResult.Succeeded)
+            if (role != "Admin")
             {
-                throw new ForbidException();
+                if (!authorizationResult.Succeeded)
+                {
+                    throw new ForbidException();
+                }
             }
 
             tour.Name = dto.Name;

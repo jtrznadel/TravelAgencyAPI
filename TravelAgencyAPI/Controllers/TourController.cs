@@ -27,6 +27,14 @@ namespace TravelAgencyAPI.Controllers
             return Ok(toursDtos);
         }
 
+        [HttpGet("manager")]
+        [Authorize(Roles = "Manager")]
+        public ActionResult<IEnumerable<Tour>> GetAllByOwner([FromQuery] TourQuery query)
+        {
+            var toursDtos = _tourService.GetAllByOwner(query);
+            return Ok(toursDtos);
+        }
+
         [HttpGet("{id}")] 
         public ActionResult Get([FromRoute]int id) 
         { 

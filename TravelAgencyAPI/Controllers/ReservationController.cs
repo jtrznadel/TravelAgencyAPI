@@ -40,5 +40,13 @@ namespace TravelAgencyAPI.Controllers
             var reservationDtos = _reservationService.GetAll();
             return Ok(reservationDtos);
         }
+
+        [HttpGet("limit/{id}")]
+        [AllowAnonymous]
+        public ActionResult GetTourReservations([FromRoute] int id)
+        {
+            var reservationDtos = _reservationService.GetTourReservations(id);
+            return Ok(reservationDtos);
+        }
     }
 }

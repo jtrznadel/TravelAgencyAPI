@@ -35,7 +35,7 @@ namespace TravelAgencyAPI.Services
             reservation.ReservatedAt = DateTime.UtcNow;
             reservation.Status = "Ongoing";
             var tourTemp = _dbContext.Tours.Where(t => t.Id == dto.TourId).FirstOrDefault();
-            var placesTaken = _dbContext.Reservations.Where(r => r.TourId == dto.TourId).Count();
+            var placesTaken = _dbContext.Reservations.Where(r => r.TourId == dto.TourId && r.Status == "Ongoing").Count();
             bool result = tourTemp.TourLimit > placesTaken ? true : false;
             var user = _dbContext.Users.Where(u => u.Id == reservation.UserId).FirstOrDefault();
             var tour = _dbContext.Tours.Where(t => t.Id == reservation.TourId).FirstOrDefault();
@@ -96,7 +96,7 @@ namespace TravelAgencyAPI.Services
 
         public int GetTourReservations(int tourId)
         {
-            return _dbContext.Reservations.Where(r => r.TourId == tourId).Count();
+            return _dbContext.Reservations.Where(r => r.TourId == tourId && r.Status == "Ongoing").Count();
         }
     }
 }

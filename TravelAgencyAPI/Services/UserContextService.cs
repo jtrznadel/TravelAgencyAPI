@@ -12,5 +12,7 @@ namespace TravelAgencyAPI.Services
         }
         public ClaimsPrincipal User => _httpContextAccessor.HttpContext?.User;
         public int? GetUserId => User is null ? null : (int?)int.Parse(User.FindFirst(c => c.Type == ClaimTypes.NameIdentifier).Value);
+
+        public string? GetUserRole => User is null ? null : (string?)User.FindFirst(c => c.Type == ClaimTypes.Role).Value;
     }
 }
