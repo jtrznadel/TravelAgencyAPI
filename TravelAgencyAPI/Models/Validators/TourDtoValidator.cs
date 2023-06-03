@@ -8,6 +8,8 @@ namespace TravelAgencyAPI.Models.Validators
         public TourDtoValidator()
         {
             RuleFor(tour => tour.StartDate)
+                .GreaterThan(tour => DateTime.Now)
+                .WithMessage("Start date must be greater than actual date")
                 .LessThan(tour => tour.EndDate)
                 .WithMessage("Start date must be less than end date")
                 .NotEmpty()
